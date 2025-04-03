@@ -66,28 +66,28 @@ export default function TokenSwapPage() {
 
 
   // Mock exchange rates (in a real app, these would come from an API or blockchain)
-  const exchangeRates = {
-    "IDRX-USDC": 0.000065, // 1 IDRX = 0.000065 USDC
-    "IDRX-EURC": 0.00006, // 1 IDRX = 0.000060 EURC
-    "USDC-IDRX": 15384.62, // 1 USDC = 15384.62 IDRX
-    "USDC-EURC": 0.92, // 1 USDC = 0.92 EURC
-    "EURC-IDRX": 16666.67, // 1 EURC = 16666.67 IDRX
-    "EURC-USDC": 1.09, // 1 EURC = 1.09 USDC
-  };
+  // const exchangeRates = {
+  //   "IDRX-USDC": 0.000065, // 1 IDRX = 0.000065 USDC
+  //   "IDRX-EURC": 0.00006, // 1 IDRX = 0.000060 EURC
+  //   "USDC-IDRX": 15384.62, // 1 USDC = 15384.62 IDRX
+  //   "USDC-EURC": 0.92, // 1 USDC = 0.92 EURC
+  //   "EURC-IDRX": 16666.67, // 1 EURC = 16666.67 IDRX
+  //   "EURC-USDC": 1.09, // 1 EURC = 1.09 USDC
+  // };
 
   // Calculate expected output when amount, fromToken, or toToken changes
-  useEffect(() => {
-    if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
-      const pair = `${fromToken}-${toToken}`;
-      const rate = exchangeRates[pair] || 0;
-      const output = Number(amount) * rate;
-      setExchangeRate(rate.toFixed(6));
-      setExpectedOutput(output.toFixed(6));
-    } else {
-      setExpectedOutput("0.0");
-      setExchangeRate("0.0");
-    }
-  }, [amount, fromToken, toToken]);
+  // useEffect(() => {
+  //   if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+  //     const pair = `${fromToken}-${toToken}`;
+  //     const rate = exchangeRates[pair] || 0;
+  //     const output = Number(amount) * rate;
+  //     setExchangeRate(rate.toFixed(6));
+  //     setExpectedOutput(output.toFixed(6));
+  //   } else {
+  //     setExpectedOutput("0.0");
+  //     setExchangeRate("0.0");
+  //   }
+  // }, [amount, fromToken, toToken]);
 
   // Initialize theme from localStorage if available
   useEffect(() => {
