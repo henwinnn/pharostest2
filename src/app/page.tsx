@@ -24,8 +24,6 @@ import {
   injected,
   useAccount,
   useConnect,
-  useReadContract,
-  useReadContracts,
   useWriteContract,
 } from "wagmi";
 import {
@@ -37,7 +35,6 @@ import {
 import { useTokenContracts } from "@/custom-hooks/readContracts";
 import { formatEther, parseUnits } from "viem";
 import { pharosNetwork } from "@/chain/Pharos";
-import { readContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 
 export default function TokenSwapPage() {
   const [fromToken, setFromToken] = useState("IDRX");

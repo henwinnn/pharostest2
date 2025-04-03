@@ -3,8 +3,8 @@ import { useReadContracts } from "wagmi";
 import type { ContractFunctionParameters } from "wagmi";
 
 interface UseTokenContractsResult {
-  balance: any; // Replace `any` with the actual type of the balance (e.g., `string` or `BigNumber`)
-  isAllowance: any; // Replace `any` with the actual type
+  balance: '' // Replace `any` with the actual type of the balance (e.g., `string` or `BigNumber`)
+  isAllowance: ''; // Replace `any` with the actual type
   error: unknown;
   isPending: boolean;
 }
