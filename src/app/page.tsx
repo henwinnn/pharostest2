@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,8 +42,8 @@ export default function TokenSwapPage() {
   const [indexToToken, setIndexToToken] = useState(1);
   const [amount, setAmount] = useState("");
   const [theme, setTheme] = useState("light");
-  const [expectedOutput, setExpectedOutput] = useState("0.0");
-  const [exchangeRate, setExchangeRate] = useState("0.0");
+  // const [expectedOutput, setExpectedOutput] = useState("0.0");
+  // const [exchangeRate, setExchangeRate] = useState("0.0");
 
   const account = useAccount();
   const { connectAsync } = useConnect();
@@ -55,7 +54,7 @@ export default function TokenSwapPage() {
   const dataEURC = useTokenContracts(EURCContract, addressUser);
 
   function getContract() {
-    if (indexFromToken === 0) {
+   if (indexFromToken === 0) {
       return IDRXContract;
     } else if (indexFromToken === 1) {
       return USDCContract;
@@ -142,16 +141,21 @@ export default function TokenSwapPage() {
 
     console.log('contract', contract)
     // Check balances
-    const balanceChecks = {
-        0: Number(formatEther(dataIDRX?.balance?.result)),
-        1: Number(formatEther(dataUSDC?.balance?.result)),
-        2: Number(formatEther(dataEURC?.balance?.result)),
-    };
+    if(dataIDRX || dataUSDC || dataEURC) {
 
-    if (balanceChecks[indexFromToken] < Number(amount)) {
+      const balanceChecks = {
+        0: dataIDRX?.balance?.status === "success" ? Number(formatEther(dataIDRX.balance.result)) : 0,
+        1: dataUSDC?.balance?.status === "success" ? Number(formatEther(dataUSDC.balance.result)) : 0,
+        2: dataEURC?.balance?.status === "success" ? Number(formatEther(dataEURC.balance.result)) : 0,
+      } as const;
+
+      if (balanceChecks[indexFromToken as keyof typeof balanceChecks] < Number(amount)) {
         alert(`Insufficient ${fromToken} balance`);
         return;
+      }
     }
+
+
     // Check allowance
        const dataApproval = await writeContractAsync({
             address: contract.address,
@@ -188,7 +192,7 @@ export default function TokenSwapPage() {
         });
 
         console.log(`Swap transaction sent: ${hash}`);
-        alert(`Swap successful: ${amount} ${fromToken} to ${expectedOutput} ${toToken}`);
+        alert(`Swap successful: ${amount} ${fromToken} to  ${toToken}`);
 
    
 };
@@ -269,7 +273,7 @@ export default function TokenSwapPage() {
         <CardHeader>
           <div>
             <CardTitle className="text-2xl dark:text-white">
-              Swap Tokens
+              IDSWAP
             </CardTitle>
             <CardDescription className="dark:text-gray-400">
               Exchange between IDRX, USDC, and EURC
@@ -292,8 +296,8 @@ export default function TokenSwapPage() {
                       className="font-medium dark:text-white"
                       style={{ overflowWrap: "anywhere", textAlign: "center" }}
                     >
-                      {dataIDRX?.balance?.result
-                        ? formatIDR(formatEther(dataIDRX?.balance?.result))
+                      {dataIDRX?.balance?.status === "success"
+                        ? formatIDR(formatEther(dataIDRX.balance.result))
                         : "0.0"}
                     </span>
                   </div>
@@ -305,8 +309,8 @@ export default function TokenSwapPage() {
                       className="font-medium dark:text-white"
                       style={{ overflowWrap: "anywhere", textAlign: "center" }}
                     >
-                      {dataUSDC?.balance?.result
-                        ? formatUSD(formatEther(dataUSDC?.balance?.result))
+                      {dataUSDC?.balance?.status === "success"
+                        ? formatUSD(formatEther(dataUSDC.balance.result))
                         : "0.0"}
                     </span>
                   </div>
@@ -318,8 +322,8 @@ export default function TokenSwapPage() {
                       className="font-medium dark:text-white"
                       style={{ overflowWrap: "anywhere", textAlign: "center" }}
                     >
-                      {dataEURC?.balance?.result
-                        ? formatEUR(formatEther(dataEURC?.balance?.result))
+                      {dataEURC?.balance?.status === "success"
+                        ? formatEUR(formatEther(dataEURC.balance.result))
                         : "€0.00"}
                     </span>
                   </div>
@@ -382,7 +386,7 @@ export default function TokenSwapPage() {
                   type="number"
                   placeholder="0.0"
                   disabled
-                  value={expectedOutput}
+                  // value={expectedOutput}
                   className="flex-1 bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
                 />
               </div>
@@ -403,7 +407,7 @@ export default function TokenSwapPage() {
                       Exchange Rate:
                     </span>
                     <span className="font-medium dark:text-gray-200">
-                      1 {fromToken} = {exchangeRate} {toToken}
+                      1 {fromToken} = {toToken}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -411,7 +415,7 @@ export default function TokenSwapPage() {
                       Expected Output:
                     </span>
                     <span className="font-medium dark:text-gray-200">
-                      {expectedOutput} {toToken}
+                     {toToken}
                     </span>
                   </div>
                   <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">

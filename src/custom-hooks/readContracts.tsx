@@ -1,16 +1,27 @@
 import { stableSwapContract } from "@/contracts/contracts";
 import { useReadContracts } from "wagmi";
-import type { ContractFunctionParameters } from "wagmi";
+import type { Address } from "viem";
 
 interface UseTokenContractsResult {
-  balance: '' // Replace `any` with the actual type of the balance (e.g., `string` or `BigNumber`)
-  isAllowance: ''; // Replace `any` with the actual type
+  balance: { result: bigint; status: "success" } | { error: Error; status: "failure" } | null;
+  isAllowance: { result: bigint; status: "success" } | { error: Error; status: "failure" } | null;
   error: unknown;
   isPending: boolean;
 }
 
+type ContractConfig = {
+  address: Address;
+  abi: readonly {
+    type: string;
+    name?: string;
+    inputs?: { name: string; type: string; internalType: string }[];
+    outputs?: { name: string; type: string; internalType: string }[];
+    stateMutability?: string;
+  }[];
+};
+
 export function useTokenContracts(
-  tokenContract: ContractFunctionParameters,
+  tokenContract: ContractConfig,
   addressUser: string,
   swapContract = stableSwapContract // Default to `stableSwapContract`
 ): UseTokenContractsResult {
@@ -30,5 +41,12 @@ export function useTokenContracts(
   });
 
   const [balance = null, isAllowance = null] = data || [];
-  return { balance, isAllowance, error, isPending };
+  
+  // Type assertion to handle the unknown result type
+  return {
+    balance: balance as UseTokenContractsResult['balance'],
+    isAllowance: isAllowance as UseTokenContractsResult['isAllowance'],
+    error,
+    isPending
+  };
 }
