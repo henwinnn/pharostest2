@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ArrowUpDown, Calculator, Info, Moon, Sun } from "lucide-react";
+import { ArrowUpDown, Calculator, Info, Moon, Sun, RefreshCw } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   injected,
@@ -52,6 +52,19 @@ export default function TokenSwapPage() {
   const dataIDRX = useTokenContracts(IDRXContract, addressUser);
   const dataUSDC = useTokenContracts(USDCContract, addressUser);
   const dataEURC = useTokenContracts(EURCContract, addressUser);
+
+  // Add refetch function
+  const handleRefetch = async () => {
+    try {
+      await Promise.all([
+        dataIDRX.refetch(),
+        dataUSDC.refetch(),
+        dataEURC.refetch()
+      ]);
+    } catch (error) {
+      console.error("Error refetching balances:", error);
+    }
+  };
 
   function getContract() {
    if (indexFromToken === 0) {
@@ -183,6 +196,14 @@ export default function TokenSwapPage() {
 
       // Step 3: Success notification
       alert(`Swap successful! Transaction hash: ${swapHash}`);
+      console.log('swapHash', swapHash)
+      
+      // Refetch balances after successful swap
+      await Promise.all([
+        dataIDRX.refetch(),
+        dataUSDC.refetch(),
+        dataEURC.refetch()
+      ]);
       
     } catch (error) {
       console.error("Swap process failed:", error);
@@ -277,9 +298,19 @@ export default function TokenSwapPage() {
           <div className="space-y-4">
             {addressUser && (
               <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg mb-2">
-                <h3 className="text-sm font-medium mb-2 dark:text-gray-200">
-                  Available Balance
-                </h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-medium dark:text-gray-200">
+                    Available Balance
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRefetch}
+                    className="h-8 px-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div className="flex flex-col items-center p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
                     <span className="text-xs text-gray-500 dark:text-gray-400">

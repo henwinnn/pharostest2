@@ -1,12 +1,19 @@
 import { stableSwapContract } from "@/contracts/contracts";
 import { useReadContracts } from "wagmi";
 import type { Address } from "viem";
+import type { QueryObserverResult } from '@tanstack/react-query';
+
+type ContractResult = [
+  { error?: undefined; result: unknown; status: "success" } | { error: Error; result?: undefined; status: "failure" },
+  { error?: undefined; result: unknown; status: "success" } | { error: Error; result?: undefined; status: "failure" }
+];
 
 interface UseTokenContractsResult {
   balance: { result: bigint; status: "success" } | { error: Error; status: "failure" } | null;
   isAllowance: { result: bigint; status: "success" } | { error: Error; status: "failure" } | null;
   error: unknown;
   isPending: boolean;
+  refetch: () => Promise<QueryObserverResult<ContractResult, Error>>;
 }
 
 type ContractConfig = {
@@ -25,7 +32,7 @@ export function useTokenContracts(
   addressUser: string,
   swapContract = stableSwapContract // Default to `stableSwapContract`
 ): UseTokenContractsResult {
-  const { data, error, isPending } = useReadContracts({
+  const { data, error, isPending, refetch } = useReadContracts({
     contracts: [
       {
         ...tokenContract,
@@ -42,11 +49,11 @@ export function useTokenContracts(
 
   const [balance = null, isAllowance = null] = data || [];
   
-  // Type assertion to handle the unknown result type
   return {
     balance: balance as UseTokenContractsResult['balance'],
     isAllowance: isAllowance as UseTokenContractsResult['isAllowance'],
     error,
-    isPending
+    isPending,
+    refetch
   };
 }
