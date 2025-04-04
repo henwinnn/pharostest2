@@ -47,7 +47,7 @@ export default function TokenSwapPage() {
 
   const account = useAccount();
   const { connectAsync } = useConnect();
-  const { data:hash, writeContractAsync } = useWriteContract();
+  const {  writeContractAsync } = useWriteContract();
   const addressUser = account.address || "";
   const dataIDRX = useTokenContracts(IDRXContract, addressUser);
   const dataUSDC = useTokenContracts(USDCContract, addressUser);
