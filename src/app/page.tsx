@@ -117,85 +117,79 @@ export default function TokenSwapPage() {
 
   // Mock function to simulate token swap
   const swapTokens = async () => {
-    if (!addressUser) {
+    try {
+      if (!addressUser) {
         alert("Please connect your wallet first");
         await connectAsync({ chainId: pharosNetwork.id, connector: injected() });
         return;
-    }
+      }
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
         alert("Please enter a valid amount");
         return;
-    }
+      }
 
-    if (fromToken === toToken) {
+      if (fromToken === toToken) {
         alert("Please select different tokens to swap");
         return;
-    }
+      }
 
-    const contract = getContract();
-    if (!contract) {
+      const contract = getContract();
+      if (!contract) {
         console.error("Invalid token index. Contract not found.");
         return;
-    }
-
-    console.log('contract', contract)
-    // Check balances
-    if(dataIDRX || dataUSDC || dataEURC) {
-
-      const balanceChecks = {
-        0: dataIDRX?.balance?.status === "success" ? Number(formatEther(dataIDRX.balance.result)) : 0,
-        1: dataUSDC?.balance?.status === "success" ? Number(formatEther(dataUSDC.balance.result)) : 0,
-        2: dataEURC?.balance?.status === "success" ? Number(formatEther(dataEURC.balance.result)) : 0,
-      } as const;
-
-      if (balanceChecks[indexFromToken as keyof typeof balanceChecks] < Number(amount)) {
-        alert(`Insufficient ${fromToken} balance`);
-        return;
       }
+
+      // Check balances
+      if(dataIDRX || dataUSDC || dataEURC) {
+        const balanceChecks = {
+          0: dataIDRX?.balance?.status === "success" ? Number(formatEther(dataIDRX.balance.result)) : 0,
+          1: dataUSDC?.balance?.status === "success" ? Number(formatEther(dataUSDC.balance.result)) : 0,
+          2: dataEURC?.balance?.status === "success" ? Number(formatEther(dataEURC.balance.result)) : 0,
+        } as const;
+
+        if (balanceChecks[indexFromToken as keyof typeof balanceChecks] < Number(amount)) {
+          alert(`Insufficient ${fromToken} balance`);
+          return;
+        }
+      }
+
+      // Step 1: Request approval
+      alert("Requesting token approval...");
+      const approvalHash = await writeContractAsync({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "approve",
+        args: [stableSwapContract.address, parseUnits(amount, 18)],
+      });
+
+      if (!approvalHash) {
+        throw new Error("Approval transaction failed");
+      }
+
+      alert("Approval successful! Proceeding with token swap...");
+
+      // Step 2: Perform the token swap
+      const swapHash = await writeContractAsync({
+        chainId: pharosNetwork.id,
+        address: stableSwapContract.address,
+        functionName: "swap",
+        abi: stableSwapContract.abi,
+        args: [indexFromToken, indexToToken, parseUnits(amount, 18), 1],
+      });
+
+      if (!swapHash) {
+        throw new Error("Swap transaction failed");
+      }
+
+      // Step 3: Success notification
+      alert(`Swap successful! Transaction hash: ${swapHash}`);
+      
+    } catch (error) {
+      console.error("Swap process failed:", error);
+      alert(`Swap failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
-
-
-    // Check allowance
-       const dataApproval = await writeContractAsync({
-            address: contract.address,
-            abi: contract.abi,
-            functionName: "approve",
-            args: [stableSwapContract.address, parseUnits(amount, 18)],
-        });
-
-        console.log('hash', hash)
-        console.log('dataApproval', dataApproval)
-        
-      //   console.log(`Approval transaction sent: ${approveTx.hash}`);
-      //   const receipt = await waitForTransactionReceipt({ 
-      //     chainId: pharosNetwork.id, 
-      //     hash: approveTx 
-      // });
-      //   if (!receipt.status) {
-      //       console.error("Approval failed");
-      //       alert("Approval failed. Please try again.");
-      //       return;
-      //   }
-        console.log("Approval successful");
-    
-
-        console.log("Approval successful, proceeding with swap...");
-
-        // Perform the token swap
-        await writeContractAsync({
-            chainId: pharosNetwork.id,
-            address: stableSwapContract.address,
-            functionName: "swap",
-            abi: stableSwapContract.abi,
-            args: [indexFromToken, indexToToken, parseUnits(amount, 18), 1],
-        });
-
-        console.log(`Swap transaction sent: ${hash}`);
-        alert(`Swap successful: ${amount} ${fromToken} to  ${toToken}`);
-
-   
-};
+  };
 
   useEffect(() => {
     if (fromToken === "IDRX") {
