@@ -42,8 +42,8 @@ export default function TokenSwapPage() {
   const [indexToToken, setIndexToToken] = useState(1);
   const [amount, setAmount] = useState("");
   const [theme, setTheme] = useState("light");
-  // const [expectedOutput, setExpectedOutput] = useState("0.0");
-  // const [exchangeRate, setExchangeRate] = useState("0.0");
+  const [expectedOutput, setExpectedOutput] = useState("0.0");
+  const [exchangeRate, setExchangeRate] = useState("0.0");
 
   const account = useAccount();
   const { connectAsync } = useConnect();
@@ -63,30 +63,29 @@ export default function TokenSwapPage() {
     }
   }
 
-
   // Mock exchange rates (in a real app, these would come from an API or blockchain)
-  // const exchangeRates = {
-  //   "IDRX-USDC": 0.000065, // 1 IDRX = 0.000065 USDC
-  //   "IDRX-EURC": 0.00006, // 1 IDRX = 0.000060 EURC
-  //   "USDC-IDRX": 15384.62, // 1 USDC = 15384.62 IDRX
-  //   "USDC-EURC": 0.92, // 1 USDC = 0.92 EURC
-  //   "EURC-IDRX": 16666.67, // 1 EURC = 16666.67 IDRX
-  //   "EURC-USDC": 1.09, // 1 EURC = 1.09 USDC
-  // };
+  const exchangeRates: Record<string, number> = {
+    "IDRX-USDC": 0.0000606, // 1 IDRX = 0.0000606 USDC (1/16500)
+    "IDRX-EURC": 0.0000557, // 1 IDRX = 0.0000557 EURC (1/17944)
+    "USDC-IDRX": 16500, // 1 USDC = 16500 IDRX
+    "USDC-EURC": 1.09, // 1 USDC = 1.09 EURC
+    "EURC-IDRX": 17944, // 1 EURC = 17944 IDRX
+    "EURC-USDC": 0.92, // 1 EURC = 0.92 USDC
+  };
 
   // Calculate expected output when amount, fromToken, or toToken changes
-  // useEffect(() => {
-  //   if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
-  //     const pair = `${fromToken}-${toToken}`;
-  //     const rate = exchangeRates[pair] || 0;
-  //     const output = Number(amount) * rate;
-  //     setExchangeRate(rate.toFixed(6));
-  //     setExpectedOutput(output.toFixed(6));
-  //   } else {
-  //     setExpectedOutput("0.0");
-  //     setExchangeRate("0.0");
-  //   }
-  // }, [amount, fromToken, toToken]);
+  useEffect(() => {
+    if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+      const pair = `${fromToken}-${toToken}`;
+      const rate = exchangeRates[pair] || 0;
+      const output = Number(amount) * rate;
+      setExchangeRate(rate.toFixed(6));
+      setExpectedOutput(output.toFixed(6));
+    } else {
+      setExpectedOutput("0.0");
+      setExchangeRate("0.0");
+    }
+  }, [amount, fromToken, toToken]);
 
   // Initialize theme from localStorage if available
   useEffect(() => {
@@ -380,7 +379,7 @@ export default function TokenSwapPage() {
                   type="number"
                   placeholder="0.0"
                   disabled
-                  // value={expectedOutput}
+                  value={expectedOutput}
                   className="flex-1 bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
                 />
               </div>
@@ -401,7 +400,7 @@ export default function TokenSwapPage() {
                       Exchange Rate:
                     </span>
                     <span className="font-medium dark:text-gray-200">
-                      1 {fromToken} = {toToken}
+                      1 {fromToken} = {exchangeRate} {toToken}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -409,7 +408,7 @@ export default function TokenSwapPage() {
                       Expected Output:
                     </span>
                     <span className="font-medium dark:text-gray-200">
-                     {toToken}
+                      {expectedOutput} {toToken}
                     </span>
                   </div>
                   <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
