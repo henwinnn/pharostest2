@@ -92,7 +92,8 @@ export default function TokenSwapPage() {
       const pair = `${fromToken}-${toToken}`;
       const rate = exchangeRates[pair] || 0;
       const output = Number(amount) * rate;
-      setExchangeRate(rate.toFixed(6));
+      
+      setExchangeRate(fromToken === 'IDRX' ?rate.toFixed(6)  : rate.toFixed(2));
       setExpectedOutput(output.toFixed(6));
     } else {
       setExpectedOutput("0.0");
@@ -204,7 +205,7 @@ export default function TokenSwapPage() {
         dataUSDC.refetch(),
         dataEURC.refetch()
       ]);
-      
+      setAmount('')
     } catch (error) {
       console.error("Swap process failed:", error);
       alert(`Swap failed: ${error instanceof Error ? error.message : "Unknown error"}`);
@@ -410,7 +411,7 @@ export default function TokenSwapPage() {
                   type="number"
                   placeholder="0.0"
                   disabled
-                  value={expectedOutput}
+                  value={Number(expectedOutput).toFixed(2)}
                   className="flex-1 bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
                 />
               </div>
@@ -439,7 +440,7 @@ export default function TokenSwapPage() {
                       Expected Output:
                     </span>
                     <span className="font-medium dark:text-gray-200">
-                      {expectedOutput} {toToken}
+                      {Number(expectedOutput).toFixed(2)} {toToken}
                     </span>
                   </div>
                   <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
