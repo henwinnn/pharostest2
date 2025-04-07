@@ -288,7 +288,7 @@ export default function TokenSwapPage() {
         <CardHeader>
           <div>
             <CardTitle className="text-2xl dark:text-white">
-              IDSWAP
+              SUAPSWAP
             </CardTitle>
             <CardDescription className="dark:text-gray-400">
               Exchange between IDRX, USDC, and EURC
